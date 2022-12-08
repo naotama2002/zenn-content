@@ -1,0 +1,12 @@
+version: '3'
+services:
+  zenn:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./articles:/articles
+      - ./books:/books
+    ports:
+      - "9999:8000"
+    command: ["./node_modules/.bin/zenn"]
