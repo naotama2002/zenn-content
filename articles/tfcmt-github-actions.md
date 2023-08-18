@@ -1,5 +1,5 @@
 ---
-title: "tfcmt 利用時を Pull Request への No changes plan 結果コメントをSKIP"
+title: "変更のない Terraform plan 結果を tfcmt が Pull Request に貼るのをスキップしたい"
 emoji: "🐶"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["githubactions"]
