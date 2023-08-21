@@ -2,7 +2,7 @@
 title: "変更のない Terraform plan 結果を tfcmt が Pull Request に貼るのをスキップしたい"
 emoji: "🐶"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["githubactions"]
+topics: ["githubactions", "terraform", "#tfcmt"]
 published: true
 ---
 
