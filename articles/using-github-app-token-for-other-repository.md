@@ -2,7 +2,7 @@
 title: "actions/create-github-app-token を利用してカレントリポジトリ以外を操作可能なトークンを生成する"
 emoji: "🐶"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["githubactions", "github", "goreleaser"]
+topics: ["githubactions", "github", "goreleaser", "#小ネタ"]
 published: true
 ---
 
