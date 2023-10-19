@@ -20,23 +20,6 @@ jobs:
         with:
           validate-only: true
 
-  check-duplicate-emoji:
-    name: Check duplicate emoji
-    runs-on: ubuntu-latest
-    steps:
-      # actions-permissions/monitor is disabled,
-      # because due to certificate errors.
-      # https://zenn.dev/link/comments/876fc6120021a7
-      # - uses: GitHubSecurityLab/actions-permissions/monitor@v1
-
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Fetch main branch
-        run: |
-          git fetch origin main:main
-
   textlint:
     name: Check textlint
     runs-on: ubuntu-latest
