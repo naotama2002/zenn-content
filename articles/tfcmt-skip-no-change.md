@@ -8,19 +8,19 @@ published: true
 
 # 実現したいこと
 
-GitHub Actions workflow で [tfcmt](https://github.com/suzuki-shunsuke/tfcmt) を利用して Pull Request 時にTerraform plan 結果を貼っている。
+GitHub Actions workflow で [tfcmt](https://github.com/suzuki-shunsuke/tfcmt) を利用して Pull Request 時に Terraform plan 結果を貼っている。
 
 複数 Terraform plan の実行結果、"No changes" の結果も貼られ冗長なため、"No changes" の結果は、Pull Request コメントに貼られないように(SKIP) したい。
 
 # 改善したい状況 (No changes の Terraform plan 結果が貼られている状態)
 
-[このリポジトリ](https://github.com/naotama2002/sample-tfcmt-skip-no-changes/blob/main/.github/workflows/tfcmt.yaml)では、
+[このリポジトリ](https://github.com/naotama2002/sample-tfcmt-skip-no-changes/blob/main/.github/workflows/tfcmt.yaml)では、の 4 つの Terraform plan 結果を tfcmt を利用して確認している。
 - staging-prepear
 - staging
 - production-prepear
 - production
 
-の 4つの Terraform plan 結果を tfcmt を利用して確認している。
+
 tfcmt の結果は下記のように、"No changes" の plan 結果も Pull Request コメントに貼られ、冗長な状態。
 
 ### [Pull Request](https://github.com/naotama2002/sample-tfcmt-skip-no-changes/pull/3) の結果表示(冗長)

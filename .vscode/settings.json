@@ -1,0 +1,15 @@
+{
+  "textlint.configPath": "./.textlintrc",
+  "textlint.nodePath": "./node_modules",
+  "markdown.extension.toc.levels": "1..3",
+  "cSpell.words": [
+    "defaultcf",
+    "koic",
+    "koneta",
+    "opencontainers",
+    "ORAS",
+    "Rubo",
+    "Seekable",
+    "Speee"
+  ],
+}
