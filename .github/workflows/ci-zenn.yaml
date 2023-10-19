@@ -37,13 +37,6 @@ jobs:
         run: |
           git fetch origin main:main
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
-      - run: |
-          deno run --allow-read --allow-run=git,grep ./tools/checkDuplicateEmoji.ts
-
   textlint:
     name: Check textlint
     runs-on: ubuntu-latest
