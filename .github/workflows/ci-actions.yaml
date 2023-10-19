@@ -1,0 +1,17 @@
+name: CI for GitHub Actions
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/*
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: reviewdog/action-actionlint@v1
