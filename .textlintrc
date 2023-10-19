@@ -38,11 +38,6 @@
     },
     "@proofdict/proofdict": { // 表記揺れを検知する
       "dictURL": "https://azu.github.io/proof-dictionary/"
-    },
-    "prh": {
-      "rulePaths": [
-        "./prh.yml"
-      ]
     }
   }
 }
