@@ -1,0 +1,92 @@
+name: CI for Zenn
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-zenn-metadata:
+    name: Validate metadata
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Because if `fetch-depth >= 2` is not set, unchanged files will be updated.
+      - uses: korosuke613/zenn-metadata-updater-action@v2
+        with:
+          validate-only: true
+
+  check-duplicate-emoji:
+    name: Check duplicate emoji
+    runs-on: ubuntu-latest
+    steps:
+      # actions-permissions/monitor is disabled,
+      # because due to certificate errors.
+      # https://zenn.dev/link/comments/876fc6120021a7
+      # - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Fetch main branch
+        run: |
+          git fetch origin main:main
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - run: |
+          deno run --allow-read --allow-run=git,grep ./tools/checkDuplicateEmoji.ts
+
+  textlint:
+    name: Check textlint
+    runs-on: ubuntu-latest
+    env:
+      ARTICLES_PATH: articles
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Because if `fetch-depth >= 2` is not set, unchanged files will be updated.
+
+      - uses: tj-actions/changed-files@v39
+        id: changed-files-yaml
+        with:
+          files_yaml: |
+            md:
+              - '${{ env.ARTICLES_PATH }}/**/*.md'
+
+      - name: Changed files
+        if: steps.changed-files-yaml.outputs.md_any_changed == 'true'
+        env:
+          CHANGED_FILES: ${{ steps.changed-files-yaml.outputs.md_all_changed_files }}
+        run: |
+          echo ${{ env.CHANGED_FILES }}
+
+      - uses: actions/setup-node@v3
+        if: steps.changed-files-yaml.outputs.md_any_changed == 'true'
+        with:
+          node-version-file: .tool-versions
+          cache: 'npm'
+
+      - name: Install latest corepack
+        if: steps.changed-files-yaml.outputs.md_any_changed == 'true'
+        run: |
+          npm i -g corepack@latest
+
+      - if: steps.changed-files-yaml.outputs.md_any_changed == 'true'
+        run: corepack enable npm
+
+      - if: steps.changed-files-yaml.outputs.md_any_changed == 'true'
+        run: npm ci
+
+      - if: steps.changed-files-yaml.outputs.md_any_changed == 'true'
+        uses: tsuyoshicho/action-textlint@v3
+        with:
+          github_token: ${{ secrets.github_token }}
+          textlint_flags: ${{ steps.changed-files-yaml.outputs.md_all_changed_files }}
