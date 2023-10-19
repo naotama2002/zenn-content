@@ -1,0 +1,50 @@
+# see prh.yml rules
+# https://github.com/vvakame/prh/blob/master/misc/prh.yml
+# see more samples
+# https://github.com/prh/rules/blob/master/media/techbooster.yml
+rules:
+  - expected: GitHub
+    patterns:
+      - /gitHub/
+      - /Github/
+    excludes:
+      - pattern: /github/
+    specs:
+      - from: gitHub
+        to: GitHub
+      - from: Github
+        to: GitHub
+      - from: github
+        to: github
+  - expected: GitHub Actions
+  - expected: Four Keys
+  # "+"を含めて正しく認識されるためにクォーテーションが必要
+  - expected: "Findy Team+"
+    patterns:
+      - /Findy Teams?\+/i
+    specs:
+      - from: Findy Teams+
+        to: Findy Team+
+  - expected: Node.js
+    patterns:
+      - /node.?js/i
+    specs:
+      - from: nodejs
+        to: Node.js
+      - from: node.js
+        to: Node.js
+  - expected: JetBrains
+    patterns:
+      - /Jetbrains/
+      - /jetBrains/
+    excludes:
+      - pattern: /jetbrains/
+    specs:
+      - from: Jetbrains
+        to: JetBrains
+      - from: jetbrains
+        to: jetbrains
+      - from: JetBrains
+        to: JetBrains
+      - from: jetBrains
+        to: JetBrains
