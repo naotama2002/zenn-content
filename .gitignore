@@ -1,2 +1,7 @@
 node_modules
 .DS_Store
+.cache
+*.pdf
+cov_profile.lcov
+cov_profile/
+bun.lockb
