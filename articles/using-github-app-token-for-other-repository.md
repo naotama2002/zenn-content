@@ -15,9 +15,9 @@ published: true
 
 ## リポジトリ構成
 
-同一 Organization 内で Goプログラムを管理するリポジトリと、Homebrew formura ファイルを置くリポジトリが別にあります。
+同一 Organization 内で Go プログラムを管理するリポジトリと、Homebrew formura ファイルを置くリポジトリが別にあります。
 
-今回の例では、下記2つのリポジトリを対象にします。
+今回の例では、下記 2 つのリポジトリを対象にします。
 
 | 説明 | リポジトリ |
 | ---- | ---- |
@@ -34,14 +34,14 @@ GitHub App 作成時、インストール時の条件は下記の通り。下記
 - GitHub App インストール時のリポジトリ指定:
   - naotama2002-org/assam
   - naotama2002-org/homebrew-assam
-  の2つ^[goreleaser/goreleaser-action を利用する場合、両方のリポジトリにインストールする必要があります]
+  の 2 つ^[goreleaser/goreleaser-action を利用する場合、両方のリポジトリにインストールする必要があります]
 
 # 結論 ( GitHub Actions Workflow の書き方 )
 
 naotama2002-org/assam リポジトリの GitHub Actions Workflow でこんな感じで書きます。
 **actions/create-github-app-token で複数リポジトリ操作可能なトークンを生成するためには、repositorys: オプションで操作するリポジトリを指定する必要があります。**
 
-GitHub Actions の Secrets に下記2つを設定します。
+GitHub Actions の Secrets に下記 2 つを設定します。
 - APP_ID^[App ID はSecretsじゃなくても良いです]: GitHub App の App ID
 - PRIVATE_KEY: [GitHub App の Private Key](https://docs.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app/managing-private-keys-for-github-apps)
 
@@ -85,7 +85,7 @@ actions/create-github-app-token を利用して、トークンを生成する際
 
 cybozu/octoken-action, tibdex/github-app-token の repositorys 指定なしだと、**GitHub App インストール時に指定した複数リポジトリを操作可能なトークン**が生成されます。しかし^[先行 GitHub App token生成 Action とデフォルトの考えが違うだけ]、actions/create-github-app-token は repositorys 指定なしだと、**カレントリポジトリのみ操作可能なトークン**が生成されます。
 
-下記`発生した課題`に記載していきます。
+下記 `発生した課題` に記載していきます。
 :::
 
 # 発生した課題
@@ -114,7 +114,7 @@ goreleaser/goreleaser-action でこんなエラーが発生しました。
 * homebrew tap formula: could not update "assam.rb": PUT https://api.github.com/repos/naotama2002-org/homebrew-assam/contents/assam.rb: 403 Resource not 
 ```
 
-GitHub App インストール時 `naotama2002-org/homebrew-assam` を指定していた。また、下記 2つの Action 先に試していたため、`GitHub App インストール時に指定したリポジトリを、指定した Permission に従って操作可能なはず、操作できないのはバグじゃね？`という固定観念から逃れられませんでした。
+GitHub App インストール時 `naotama2002-org/homebrew-assam` を指定していた。また、下記 2 つの Action 先に試していたため、`GitHub App インストール時に指定したリポジトリを、指定した Permission に従って操作可能なはず、操作できないのはバグじゃね？` という固定観念から逃れられませんでした。
 
 - 少し前まで^[2023/10/19時点では actions/create-github-app-token に書き換えられている][GitHub Actions ワークフローで GitHub App を使用して認証済み API 要求を作成する](https://docs.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app/making-authenticated-api-requests-with-a-github-app-in-a-github-actions-workflow)に記載されていた [tibdex/github-app-token](https://github.com/tibdex/github-app-token) で app_id, private_key のみを指定して、GitHub App インストール時に指定した複数リポジトリを操作ができていた
 - [cybozu/octoken-action](https://github.com/cybozu/octoken-action) で github_app_id, github_app_private_key のみを指定して、GitHub App インストール時に指定した複数リポジトリを操作ができていた
