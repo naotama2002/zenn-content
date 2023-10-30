@@ -4,7 +4,7 @@ emoji: "😺"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["github", "githubactions", "awscdk", "lambda", "#小ネタ"]
 published: false
-publication: "cybozu-ept"
+publication_name: "cybozu_ept"
 ---
 
 # 実現したいこと
