@@ -8,7 +8,7 @@ published: false
 
 # 実現したいこと
 
-GitHub Actions の Cron ジョブで 5 分ごと正確に Workflow をスケジュール実行したい。[Cron( schedule トリガー )](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) を用いた方法は、遅延が発生^[実際に動かしてみると20分程度の遅延が発生します]する課題を解決したい。
+GitHub Actions の Workflow を 5 分ごと**正しい間隔**で Workflow をスケジュール実行したいが、GitHub Actions の [Cron( schedule トリガー )](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) は遅延が発生^[実際に動かしてみると20分程度の遅延を観測しています]する仕様です。この課題を AWS Lambda + GitHub Actions API を利用して解消^[Workflow が fetch されてから実行されるまでの時間は、GitHub Actions 依存します]します。
 
 :::message
 https://zenn.dev/no4_dev/articles/14b295b8dafbfd
@@ -17,7 +17,7 @@ https://zenn.dev/no4_dev/articles/14b295b8dafbfd
 
 # 前提条件
 
-AWS CDK を利用して、AWS Lambda から定期的に GitHub Actions の workflow_dispatch を実行する環境を実現します。
+AWS CDK を利用して、AWS Lambda から定期的に GitHub Actions の workflow_dispatch を実行する AWS 環境を実現します。
 
 - AWS を利用します
 - Node.js を利用します
@@ -48,7 +48,7 @@ npx aws-cdk@2 init app --language typescript
 ```
 
 :::message
-https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/commit/ba44023619263e55838eb7b7058a64be128fde88
+https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/tree/ba44023619263e55838eb7b7058a64be128fde88
 がほぼ init した状態のコミットです。
 :::
 
@@ -79,29 +79,8 @@ AWS コンソールで Lambda 関数をみると `CronGithubActionsWorkflow-Work
 
 ### EventBridge 定義
 
-```diff typescript
-export class CronGithubActionsWorkflowFromLambdaStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
-
-    const WorkflowDispatch = new NodejsFunction(this, "WorkflowDispatch", {
-      runtime: Runtime.NODEJS_18_X,
-      entry: "lib/trigger-ga-workflow-dispatch.ts",
-      timeout: cdk.Duration.seconds(60),
-    });
-
-+    new events.Rule(this, "WorkflowDispatchRule", {
-+      // 5分ごとに実行
-+      schedule: events.Schedule.expression("cron(0/5 * * * ? *)"),
-+      targets: [new targets.LambdaFunction(WorkflowDispatch,
-+        {
-+          retryAttempts: 0 // これは僕の実験用なので気にしないで、ここでオプション指定できます
-+        }
-+      )],
-+    });
-  }
-}
-```
+Cron 形式で 5 分ごとに実行する EventBridge のルールを定義します。
+https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/cron-github-actions-workflow-from-lambda-stack.ts#L36-L44
 
 ### 実行される GitHub Actions Workflow 定義
 
@@ -141,12 +120,12 @@ https://zenn.dev/tmknom/articles/github-apps-token
 GitHub Apps に関しては上記を読んでみましょう。
 :::
 
-インストール結果
+GitHub App インストール結果
 ![](https://storage.googleapis.com/zenn-user-upload/0c6e720ca4c6-20231030.png)
 
 #### GitHub App 情報を AWS Secrets Manager に登録する
 
-[GitHub App インストールとして認証](https://docs.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation)で必要な情報を登録します。
+[GitHub App インストールとして認証](https://docs.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation)で必要な情報を登録します。Lambda から利用し、GitHub App から Token を取得するために利用します。
 
 登録するのは下記の 3 つです。
 
@@ -156,26 +135,27 @@ GitHub Apps に関しては上記を読んでみましょう。
 
 :::message
 GITHUB_SECRET_KEY は、改行を `\n` に変換して登録してください。
+
+![](https://storage.googleapis.com/zenn-user-upload/37f30285ddc5-20231030.png)
+Secrets Manager で、 GITHUB_SECRET_KEY を `キー/値` タブで見た時、上記のように private key が改行された状態で見えている必要があります。
 :::
 
 ### 実行コード
 
-#### GitHub App の情報を取得するコード ( from AWS Secrete Manager )
+#### Lambda から Secrets Manager から GitHub App の情報を得る
 
-##### Secrets 情報を取得するのは下記ソースコードを参照してください。
-https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/secrets.ts
+シークレット取得コードは[ここ](https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/secrets.ts)を見ていただくとして、Lambda 関数に必要な権限を付与します。
 
-##### Lambda から AWS Secrets Manager への権限を付与します。
 https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/cron-github-actions-workflow-from-lambda-stack.ts#L31-L34
 CDK で書くと直感的で良いですね。
 
-#### workflow_dispatch を実行するコード
+#### workflow_dispatch を実行
 
-https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/trigger-ga-workflow-dispatch.ts#L13-L20
 octokit/auth-app で GitHub App から Token を取得します。
+https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/trigger-ga-workflow-dispatch.ts#L13-L20
 
-https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/trigger-ga-workflow-dispatch.ts#L22-L40
 octokit/rest で workflow_dispatch を実行します。
+https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/trigger-ga-workflow-dispatch.ts#L22-L40
 
 ## 実行結果
 
@@ -185,6 +165,6 @@ octokit/rest で workflow_dispatch を実行します。
 
 # あとがき
 
-指定時間にきっちり実行される CI/CD 環境から、GitHub Actions 移行時に、Cron ジョブの実行遅延することが問題になることがわかり、Lambda から workflow_dispatch を実行することで、遅延を解消するために実装した内容を紹介しました。
+今回は、定刻にジョブが実行される CI/CD 環境から、GitHub Actions への移行時、定期実行ジョブの遅延実行が問題になりました。Lambda から GitHub Actions workflow_dispatch を API 経由で実行することにより、課題を解消するためを実装を紹介しました。
 
-実務では Serverless framework で実装したのですが、V4 発表に合わせ、移行先も検討しておくかーーーということで、今回は AWS CDK を検証してみました。
+実務では Serverless framework v3.x で実装したのですが、[v4 発表](https://www.serverless.com/blog/serverless-framework-v4-a-new-model)に合わせ、移行先を検討しておくかーということで、今回は AWS CDK を検証してみました。
