@@ -13,7 +13,7 @@ GitHub Actions の Workflow を 5 分ごと**正しい間隔**で Workflow を�
 
 :::message
 https://zenn.dev/no4_dev/articles/14b295b8dafbfd
-外部 Cron サービスを利用可能であれば、上記記事でサクッと解決できます！
+トークンを置く場所、外部 Cron サービスを利用可能等、要件を満たせば、上記記事でサクッと解決できます！
 :::
 
 # 前提条件
@@ -31,8 +31,7 @@ AWS CDK を利用して、AWS Lambda から定期的に GitHub Actions の workf
 
 https://github.com/naotama2002/cron-github-actions-workflow-from-lambda
 
-AWS CDK で Lambda 環境を構築する下記リポジトリを参照してください。全て有ります。
-
+AWS CDK で Lambda 環境を構築する下記リポジトリを参照してください。全てここにあります。
 
 # やっていく
 
@@ -49,7 +48,7 @@ npx aws-cdk@2 init app --language typescript
 
 :::message
 https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/tree/ba44023619263e55838eb7b7058a64be128fde88
-がほぼ init した状態のコミットです。
+がほぼ aws-cdk init app した状態のコミットです。
 :::
 
 
@@ -80,16 +79,43 @@ AWS コンソールで Lambda 関数をみると `CronGithubActionsWorkflow-Work
 ### EventBridge 定義
 
 Cron 形式で 5 分ごとに実行する EventBridge のルールを定義します。
-https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/cron-github-actions-workflow-from-lambda-stack.ts#L36-L44
+```typescript
+export class CronGithubActionsWorkflowFromLambdaStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+     :
+     :
+      // 5分ごとに実行
+      new events.Rule(this, "WorkflowDispatchRule", {
+        schedule: events.Schedule.expression("cron(0/5 * * * ? *)"),
+        targets: [new targets.LambdaFunction(WorkflowDispatch,
+          {
+            retryAttempts: 0
+          }
+        )],
+      });
+```
 
 ### 実行される GitHub Actions Workflow 定義
 
 この Workflow が 5 分ごとに実行されることがゴール。
 
-https://github.com/naotama2002-org/workflow-dispatch-zenn/blob/main/.github/workflows/workflow-dispatch.yaml
+```yaml
+name: Workflow dispatch test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  step:
+    runs-on: ubuntu-latest
+    steps:
+        - run: echo Run workflow dispatch!
+```
 
 :::message
 Workflow は naotama2002-org に置いてあります。
+https://github.com/naotama2002-org/workflow-dispatch-zenn/blob/main/.github/workflows/workflow-dispatch.yaml
 :::
 
 ## Lambda から GitHub Actions wofkflow_dispatch を実行する
@@ -146,16 +172,66 @@ Secrets Manager で、 GITHUB_SECRET_KEY を `キー/値` タブで見た時、�
 
 シークレット取得コードは[ここ](https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/secrets.ts)を見ていただくとして、Lambda 関数に必要な権限を付与します。
 
-https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/cron-github-actions-workflow-from-lambda-stack.ts#L31-L34
-AWS CDK で書くと直感的で良いですね。
+```typescript
+export class CronGithubActionsWorkflowFromLambdaStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    // .env ファイル読み込み
+    dotenv.config();
+    // Secrets Manager の APN
+    const stringSecretArn = process.env.AWS_SECRETS_MANAGER_APN;
+     :
+     :
+
+      // AWS Secrets Manager への権限付与
+      //   Secrets Manager の該当 APN の Read権限
+      const smResource = Secret.fromSecretCompleteArn(this, "SecretsManager", stringSecretArn);
+      smResource.grantRead(WorkflowDispatch);
+```
+.env ファイルから APN を読み込んで、権限を付与しています。AWS CDK で書くと直感的で良いですね。
 
 #### workflow_dispatch を実行
 
+GitHub Actions API を叩く部分は https://github.com/octokit/octokit.js を利用しています。
+
 octokit/auth-app で GitHub App から Token を取得します。
-https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/trigger-ga-workflow-dispatch.ts#L13-L20
+```typescript
+export const triggerWorkflowDispatch = async ({
+  secrets,
+}: triggerWorkflowDispatchParams): Promise<void> => {
+  const octokit = new Octokit({
+    authStrategy: createAppAuth,
+    auth: {
+      appId: secrets.GITHUB_APP_ID,
+      privateKey: secrets.GITHUB_SECRET_KEY,
+      installationId: secrets.GITHUB_APP_INSTALLATION_ID,
+    },
+  });
+```
 
 octokit/rest で workflow_dispatch を実行します。
-https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/trigger-ga-workflow-dispatch.ts#L22-L40
+```typescript
+  await octokit.rest.actions
+    .createWorkflowDispatch({
+      owner: WORKFLOW_OWNER,
+      repo: WORKFLOW_REPO,
+      workflow_id: WORKFLOW_ID,
+      ref: WORKFLOW_REF,
+    })
+    .then((_) => {
+      console.log(
+        `success: ${WORKFLOW_OWNER}/${WORKFLOW_REPO}/${WORKFLOW_ID}:${WORKFLOW_REF} workflow_dispatch`,
+      );
+    })
+    .catch((error) => {
+      console.log(
+        `error: ${WORKFLOW_OWNER}/${WORKFLOW_REPO}/${WORKFLOW_ID}:${WORKFLOW_REF} workflow_dispatch`,
+      );
+      throw error;
+    }
+  );
+```
 
 ## 実行結果
 
