@@ -1,5 +1,5 @@
 ---
-title: "GitHub Actions の Cron ジョブを AWS Lambda から定刻に実行する"
+title: "GitHub Actions の Cron ジョブを AWS Lambda から定刻に実行する環境を AWS CDK で作成する方法"
 emoji: "🐶"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["github", "githubactions", "awscdk", "lambda", "#小ネタ"]
