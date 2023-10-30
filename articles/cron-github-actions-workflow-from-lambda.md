@@ -36,8 +36,7 @@ AWS CDK で Lambda 環境を構築する下記リポジトリを参照してく�
 
 # やっていく
 
-## AWS Lambda 環境構築 + Lambda 関数実装を CDK を利用して環境構築する
-
+AWS 環境構築 + AWS Lambda 関数実装を CDK を利用して行います。
 今回作成したプロジェクトは https://github.com/naotama2002/cron-github-actions-workflow-from-lambda.git を参照ください。ポイントかもしれない部分だけ紹介していきます。
 
 ## 準備
