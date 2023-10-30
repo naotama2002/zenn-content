@@ -36,7 +36,7 @@ AWS CDK で Lambda 環境を構築する下記リポジトリを参照してく�
 
 # やっていく
 
-AWS 環境構築 + AWS Lambda 関数実装を CDK を利用して行います。
+AWS 環境構築 + AWS Lambda 関数実装を AWS CDK を利用して行います。
 今回作成したプロジェクトは https://github.com/naotama2002/cron-github-actions-workflow-from-lambda.git を参照ください。ポイントかもしれない部分だけ紹介していきます。
 
 ## 準備
@@ -147,7 +147,7 @@ Secrets Manager で、 GITHUB_SECRET_KEY を `キー/値` タブで見た時、�
 シークレット取得コードは[ここ](https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/secrets.ts)を見ていただくとして、Lambda 関数に必要な権限を付与します。
 
 https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/cron-github-actions-workflow-from-lambda-stack.ts#L31-L34
-CDK で書くと直感的で良いですね。
+AWS CDK で書くと直感的で良いですね。
 
 #### workflow_dispatch を実行
 
