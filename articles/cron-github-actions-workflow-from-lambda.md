@@ -3,7 +3,8 @@ title: "GitHub Actions Workflow を正確な間隔で実行する環境を AWS C
 emoji: "😺"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["github", "githubactions", "awscdk", "lambda", "#小ネタ"]
-published: true
+published: false
+publication: "cybozu-ept"
 ---
 
 # 実現したいこと
