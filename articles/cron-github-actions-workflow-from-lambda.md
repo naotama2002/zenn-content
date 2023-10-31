@@ -1,5 +1,5 @@
 ---
-title: "GitHub Actions Workflow を正確な間隔で実行する環境を AWS CDK で作成する方法"
+title: "GitHub Actions Workflow を定期実行できる環境を AWS CDK で作成する方法"
 emoji: "😺"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["github", "githubactions", "awscdk", "lambda", "#小ネタ"]
@@ -9,16 +9,16 @@ publication_name: "cybozu_ept"
 
 # 実現したいこと
 
-GitHub Actions の Workflow を 5 分ごと**正しい間隔**で Workflow をスケジュール実行したいが、GitHub Actions の [Cron( schedule トリガー )](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) は遅延が発生^[実際に動かしてみると20分程度の遅延を観測しています]する仕様です。この課題を AWS Lambda + GitHub Actions API を利用して解消^[Workflow が fetch されてから実行されるまでの時間は、GitHub Actions 依存します]します。
+GitHub Actions Workflow を 5 分ごと**正しい間隔(定期実行)**でスケジュール実行したいが、GitHub Actions の [Cron( schedule トリガー )](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) は遅延が発生^[実際に動かしてみると20分程度の遅延を観測しています]する仕様です。この課題を AWS Lambda + [GitHub Actions API](https://docs.github.com/ja/rest/actions?apiVersion=2022-11-28) を利用して解決^[Workflow が fetch されてから実行されるまでの時間は、GitHub Actions 依存します]します。AWS 環境構築には AWS CDK を利用します。
 
 :::message
 https://zenn.dev/no4_dev/articles/14b295b8dafbfd
-トークンを置く場所、外部 Cron サービスを利用可能等、要件を満たせば、上記記事でサクッと解決できます！
+GitHub Actions API の Token を置く場所・外部 Cron サービスを利用可能等、要件を満たせば、上記記事でサクッと解決できます！
 :::
 
 # 前提条件
 
-AWS CDK を利用して、AWS Lambda から定期的に GitHub Actions の workflow_dispatch を実行する AWS 環境を実現します。
+AWS CDK を利用して、AWS Lambda から GitHub Actions の workflow_dispatch を定期実行する AWS 環境を実現します。
 
 - AWS を利用します
 - Node.js を利用します
