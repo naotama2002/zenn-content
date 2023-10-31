@@ -24,14 +24,15 @@ AWS CDK を利用して、AWS Lambda から定期的に GitHub Actions の workf
 - Node.js を利用します
 - [AWS CDK](https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/home.html) を利用します
 - [GitHub Apps](https://docs.github.com/apps) を利用します
-- GitHub App の [private key](https://docs.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app/managing-private-keys-for-github-apps) を AWS Secrets Manager に登録します
+- GitHub App の [private key](https://docs.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app/managing-private-keys-for-github-apps) を `AWS Secrets Manager` に登録します
+  - 本記事では `AWS Secrets Manager` を利用^[Secrets Manager を利用している仕組みを AWS CDK に置き換え検証しているため、Secrets Manager を利用しています]していますが、`AWS Parameter Store` でも要件を満たします。
 - [workflow_dispatch ワークフロートリガー](https://docs.github.com/ja/actions/using-workflows/manually-running-a-workflow#configuring-a-workflow-to-run-manually)が設定されている GitHub Actions workflow を [API](https://docs.github.com/ja/rest/actions/workflows?apiVersion=2022-11-28#list-repository-workflows) で呼び出します
 
 # 成果物(結論)
 
 https://github.com/naotama2002/cron-github-actions-workflow-from-lambda
 
-AWS CDK で Lambda 環境を構築する下記リポジトリを参照してください。全てここにあります。
+AWS CDK で AWS 環境を構築し、Lambda から GitHub Actions Workflow を実行する成果物は、上記リポジトリを参照してください。全てここにあります。
 
 # やっていく
 
@@ -118,7 +119,7 @@ Workflow は naotama2002-org に置いてあります。
 https://github.com/naotama2002-org/workflow-dispatch-zenn/blob/main/.github/workflows/workflow-dispatch.yaml
 :::
 
-## Lambda から GitHub Actions wofkflow_dispatch を実行する
+## Lambda から GitHub Actions workflow_dispatch を実行する
 
 ### 準備
 
@@ -168,9 +169,9 @@ Secrets Manager で、 GITHUB_SECRET_KEY を `キー/値` タブで見た時、�
 
 ### 実行コード
 
-#### Lambda から Secrets Manager から GitHub App の情報を得る
+#### Lambda 関数で利用する GitHub App の情報を Secrets Manager から 得る
 
-シークレット取得コードは[ここ](https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lib/secrets.ts)を見ていただくとして、Lambda 関数に必要な権限を付与します。
+シークレット取得コードは[ここ](https://github.com/naotama2002/cron-github-actions-workflow-from-lambda/blob/main/lambda/secrets.ts)を見ていただくとして、Lambda 関数に必要な権限を付与します。
 
 ```typescript
 export class CronGithubActionsWorkflowFromLambdaStack extends cdk.Stack {
