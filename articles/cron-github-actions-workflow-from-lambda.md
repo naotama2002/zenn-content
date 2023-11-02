@@ -9,7 +9,9 @@ publication_name: "cybozu_ept"
 
 # 実現したいこと
 
-GitHub Actions Workflow を 5 分ごと**正しい間隔(定期実行)**でスケジュール実行したいが、GitHub Actions の [Cron( schedule トリガー )](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) は遅延が発生^[実際に動かしてみると20分程度の遅延を観測しています]する仕様です。この課題を AWS Lambda + [GitHub Actions API](https://docs.github.com/ja/rest/actions?apiVersion=2022-11-28) を利用して解決^[Workflow が fetch されてから実行されるまでの時間は、GitHub Actions 依存します]します。AWS 環境構築には AWS CDK を利用します。
+定刻にジョブが実行される CI/CD 環境から GitHub Actions への移行する際に、GitHub Actions の定期実行ジョブの遅延実行が問題になりました。Lambda から GitHub Actions workflow_dispatch を API 経由で実行することにより課題を解消します。
+
+GitHub Actions Workflow を 5 分ごと **正しい間隔(定期実行)** でスケジュール実行したいが、GitHub Actions の [Cron( schedule トリガー )](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) は遅延が発生^[実際に動かしてみると20分程度の遅延を観測しています]する仕様です。この課題を AWS Lambda + [GitHub Actions API](https://docs.github.com/ja/rest/actions?apiVersion=2022-11-28) を利用して解決^[Workflow が fetch されてから実行されるまでの時間は、GitHub Actions 依存します]します。AWS 環境構築には AWS CDK を利用します。
 
 :::message
 https://zenn.dev/no4_dev/articles/14b295b8dafbfd
@@ -26,7 +28,7 @@ AWS CDK を利用して、AWS Lambda から GitHub Actions の workflow_dispatch
 - [GitHub Apps](https://docs.github.com/apps) を利用します
 - GitHub App の [private key](https://docs.github.com/ja/apps/creating-github-apps/authenticating-with-a-github-app/managing-private-keys-for-github-apps) を `AWS Secrets Manager` に登録します
   - 本記事では `AWS Secrets Manager` を利用^[Secrets Manager を利用している仕組みを AWS CDK に置き換え検証しているため、Secrets Manager を利用しています]していますが、`AWS Parameter Store` でも要件を満たします。
-- [workflow_dispatch ワークフロートリガー](https://docs.github.com/ja/actions/using-workflows/manually-running-a-workflow#configuring-a-workflow-to-run-manually)が設定されている GitHub Actions workflow を [API](https://docs.github.com/ja/rest/actions/workflows?apiVersion=2022-11-28#list-repository-workflows) で呼び出します
+- [workflow_dispatch ワークフロートリガー](https://docs.github.com/ja/actions/using-workflows/manually-running-a-workflow#configuring-a-workflow-to-run-manually)が設定されている GitHub Actions workflow を [API](https://docs.github.com/ja/rest/actions/workflows?apiVersion=2022-11-28#create-a-workflow-dispatch-event) で呼び出します
 
 # 成果物(結論)
 
@@ -242,6 +244,4 @@ octokit/rest で workflow_dispatch を実行します。
 
 # あとがき
 
-今回は、定刻にジョブが実行される CI/CD 環境から、GitHub Actions への移行時、定期実行ジョブの遅延実行が問題になりました。Lambda から GitHub Actions workflow_dispatch を API 経由で実行することにより、課題を解消するためを実装を紹介しました。
-
-実務では Serverless framework v3.x で実装したのですが、[v4 発表](https://www.serverless.com/blog/serverless-framework-v4-a-new-model)に合わせ、移行先を検討しておくかーということで、今回は AWS CDK を検証してみました。
+実務では [Serverless framework](https://www.serverless.com/) V3.x で実装したのですが、[V4 New Model](https://www.serverless.com/blog/serverless-framework-v4-a-new-model) に合わせ、移行先を検討しておくかーということで、今回は AWS CDK を検証してみました。
