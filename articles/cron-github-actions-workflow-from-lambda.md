@@ -3,7 +3,7 @@ title: "GitHub Actions Workflow を定期実行できる環境を AWS CDK で作
 emoji: "😺"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["github", "githubactions", "awscdk", "lambda", "#小ネタ"]
-published: false
+published: true
 publication_name: "cybozu_ept"
 ---
 
