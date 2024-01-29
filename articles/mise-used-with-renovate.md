@@ -3,7 +3,7 @@ title: "asdf→mise へ移行すると Renovate + asdf manager で golang|nodejs
 emoji: "🦭"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["#mise", "#asdf", "github", "renovate"]
-published: false
+published: true
 ---
 
 # はじめに
