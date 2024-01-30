@@ -1,5 +1,5 @@
 ---
-title: "asdf→mise へ移行すると Renovate + asdf manager で golang|nodejs の 更新ができなくなった話"
+title: "asdf→mise へ移行すると Renovate + asdf manager で golang/nodejs の 更新ができなくなった話"
 emoji: "🦭"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["#mise", "#asdf", "github", "renovate"]
