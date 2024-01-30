@@ -1,5 +1,5 @@
 ---
-title: "asdf→mise へ移行すると Renovate + asdf manager で golang|nodejs の 更新ができなくなった話"
+title: "asdf→mise へ移行すると Renovate + asdf manager で golang/Node.js の 更新ができなくなった話"
 emoji: "🦭"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["#mise", "#asdf", "github", "renovate"]
@@ -16,7 +16,7 @@ published: true
 
 # 結論
 
-- Renovate + asdf manager で golang/nodejs を更新しているリポジトリで mise を利用する場合には mise `2024.1.30` 以降のバージョンを使いましょう。golang/nodejs を asdf 仕様で管理してくれます
+- Renovate + asdf manager で golang/Node.js を更新しているリポジトリで mise を利用する場合には mise `2024.1.30` 以降のバージョンを使いましょう。golang/Node.js を asdf 仕様で管理してくれます
 
 # 発生した事象
 
@@ -80,14 +80,14 @@ golang 1.21.6
 
 https://github.com/naotama2002/mise/commit/67ad6f70834b5a7f95fde5d1a8e8cdca115866ad
 
-PR. 送るかーと思って [mise/CONTRIBUTING.md](https://github.com/jdx/mise/blob/main/CONTRIBUTING.md) 読んでたら、「お前その PR. は要るんか？ 先に issue 立てて聞いてくれよな(意訳中の意訳)」っぽいことが書いてあったので issue 立てたら PR. 送る前に修正された^[この[使い捨てコード](https://github.com/jdx/mise/commit/14fb790ac9953430794719b38b83c8c2242f1759)みたいなのキレイにした PR. 作りたい気持ち]🎉。
+PR. 送るかーと思って [mise/CONTRIBUTING.md](https://github.com/jdx/mise/blob/main/CONTRIBUTING.md) 読んでたら、「お前その PR. は要るんか？　先に issue 立てて聞いてくれよな(意訳中の意訳)」っぽいことが書いてあったので issue 立てたら PR. 送る前に修正された^[この[使い捨てコード](https://github.com/jdx/mise/commit/14fb790ac9953430794719b38b83c8c2242f1759)みたいなのキレイにした PR. 作りたい気持ち]🎉。
 https://github.com/jdx/mise/commit/14fb790ac9953430794719b38b83c8c2242f1759
 
 検討していたら解決してしまいました。
 
 # 解決した
 
-mise `2024.1.30` 以降のバージョンを使いましょう。.tool-versions の golang/nodejs を asdf 仕様で管理してくれます。
+mise `2024.1.30` 以降のバージョンを使いましょう。.tool-versions の golang/Node.js を asdf 仕様で管理してくれます。
 
 # 移行した雑な感想(おまけ)
 
