@@ -19,7 +19,7 @@ published: true
   - 設定ファイルのメンテナンスコストは最小にしたい
 - いろいろなプロジェクトを見てみたが「これが良さそう」という設定を導き出せなかった
   - 各チームで「linter に求めるものが違う」ため当たり前なんだと思う
-  - 取捨選択をあきらめ golangci-lint に採用された linter を全てクリアすることは正義だ！として `enable-all: true` することは、モブプログラミングで開発するチームには「過剰」になりそう
+  - 取捨選択をあきらめ `golangci-lint` に採用された linter を全てクリアすることは正義だ！として `enable-all: true` することは、モブプログラミングで開発するチームには「過剰」になりそう
 
 ## `staticcheck` へ変更しようと思った理由
 - チームで利用の多い VSCode + vscode-go に `staticcheck` がデフォルトで採用されている
@@ -49,7 +49,7 @@ linters:
     - govet
 ```
 
-`golangci-lint` の [default](https://golangci-lint.run/usage/linters/#enabled-by-default)(`errcheckm, gosimple, govet, ineffassign, staticcheck, unused`) + 3 つ(revice, gofmt, govet)の linter が有効になっている状態です。VSCode + vscode-go で開発してるメンバーが多いため、手元開発環境では staticcheck で linter が走っている状態です^[ ちゃんと `golangci-lint` の設定をしているメンバーがいるかもしれない]。
+`golangci-lint` の [default](https://golangci-lint.run/usage/linters/#enabled-by-default)(`errcheckm, gosimple, govet, ineffassign, staticcheck, unused`) + 3 つ(revice, gofmt, govet)の linter が有効になっている状態です。VSCode + vscode-go で開発してるメンバーが多いため、手元開発環境では `staticcheck` で linter が走っている状態です^[ ちゃんと `golangci-lint` の設定をしているメンバーがいるかもしれない]。
 
 # 検討
 
@@ -209,11 +209,11 @@ issues:
   max-same-issues: 0
 ```
 
-チーム用の golangci.yml 作った上で、チームの Go リポジトリで golangci-lint を動作させチェックしてみた結果「ほとんど何も検出されない」となりました。この結果を見て「モブプログラミングで実施される Go プロジェクトでは、linter が検出しそうな部分はモブの中で解決されている、また、VSCode のでデフォルト linter である staticcheck によってある良い感じになっている」と感じました。
+チーム用の golangci.yml 作った上で、チームの Go リポジトリで `golangci-lint` を動作させチェックしてみた結果「ほとんど何も検出されない」となりました。この結果を見て「モブプログラミングで実施される Go プロジェクトでは、linter が検出しそうな部分はモブの中で解決されている、また、VSCode のでデフォルト linter である `staticcheck` によってある良い感じになっている」と感じました。
 
-## 最終結果として golangci-lint を使い続けることに
+## 最終結果として `golangci-lint` を使い続けることに
 
-ローカル環境のみ staticcheck に変更して日々の業務を実施していましたが、早くも `staticcheck` + 追加制約を入れたくなりました。
+ローカル環境のみ `staticcheck` に変更して日々の業務を実施していましたが、早くも `staticcheck` + 追加制約を入れたくなりました。
 - `sqlclosecheck, rowserrcheck, bodyclose` のように実装時に忘れがちなチェックを入れたくなった
 - 追加制約(linter)のために make を書くのは本末転倒 → `golangci-lint` じゃないか
 
@@ -272,7 +272,7 @@ issues:
 
 # あとがき
 
-golangci-lint の linter を増やす！をコツコツ継続していく、別 linter 探求を継続していきたいと思います。
+`golangci-lint` の linter を増やす！をコツコツ継続していく、別 linter 探求を継続していきたいと思います。
 
 # リンク
 
