@@ -3,7 +3,7 @@ title: "Go の linter を golangci-lint から staticcheck に変更を検討し
 emoji: "🐶"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["golang", "linter"]
-published: false
+published: true
 ---
 
 # はじめに
