@@ -28,7 +28,7 @@ https://blog.cybozu.io/entry/2019/10/18/080000
 
 生産性向上チームではマルチアカウント構成によるシングルサインオン(以下 SSO)とチームに委譲できる権限管理のしくみを作ることでこれらの問題を解決し、社内で AWS を活用しやすい基盤を継続運用します。
 
-継続運用性を高めるために^[[AWS CLI を使用して AssumeRole 呼び出しを行い、一時的なユーザー認証情報を保存する方法を教えてください](https://repost.aws/ja/knowledge-center/aws-cli-call-store-saml-credentials)記載のしくみを [cybozu/assam](https://github.com/cybozu/assam) を開発し実現していましたが、独自実装を無くし AWS 公式のしくみを採用することで将来同技術を継続利用できる可能性が高まると考えています]、AWS 公式のしくみである IAM Identity Center を採用します。
+継続運用性を高めるために^[[AWS CLI を使用して AssumeRole 呼び出しを行い、一時的なユーザー認証情報を保存する方法を教えてください](https://repost.aws/ja/knowledge-center/aws-cli-call-store-saml-credentials)記載のしくみを [cybozu/assam](https://github.com/cybozu/assam) を開発し実現していましたが、独自実装を無くし AWS 公式のしくみを採用することで将来も同技術を継続利用できる可能性が高まると考えています]、AWS 公式のしくみである IAM Identity Center を採用します。
 https://docs.aws.amazon.com/ja_jp/singlesignon/latest/userguide/what-is.html
 
 # 全体構成と読み進めるための補足説明
@@ -57,11 +57,11 @@ https://dev.classmethod.jp/articles/multi-account-tips-ps-for-management-account
 **kintone + AWS SSO(IAM Identity Center) で AWS マルチアカウント管理・利用を最高にするしくみ！**です。
 
 - 利用チーム/ユーザは kintone アプリにレコード登録**だけ**で、社内ユーザアカウントを利用し SSO で AWS アカウントを利用可能
-- 管理者の作業基本不要（自動で必要な情報の同期・設定がおこなわれる）なし、エラーは Slack に通知されるため、通知を受けてユーザサポートもしくは解析作業
+- 管理者の作業は基本的に不要です（必要な情報の同期・設定は自動で行われます）、エラーは Slack に通知されるため、通知を受けてユーザサポートもしくは解析作業
 
 ユーザが必要な AWS アカウントで必要な権限を利用して開発がおこなえる！権限を得るために承認依頼待ちならない！を実現しています。
 
-出勤登録くらいのユーザ負担で AWS アカウントを必要な権限で利用可能ですね！（消されるかもいろんな意味で）
+出勤登録する程度のユーザ負担で AWS アカウントを必要な権限で利用可能ですね！（冗談ですが）
 
 ## 利用チーム/ユーザの kintone アプリレコード登録
 
@@ -80,7 +80,7 @@ kintone アプリに `許可セット` / `ユーザアカウント x AWS アカ�
 # SSO を使った AWS アカウントの構成概要
 
 ## AWS アカウントの整理方法
-AWS アカウントは目的ごとに作成しています。
+AWS アカウントは目的別に作成しています。
 具体的には AWS Organizations の[組織単位(OU)](https://docs.aws.amazon.com/ja_jp/organizations/latest/userguide/orgs_manage_ous.html)を使って次のように整理しています^[OU の整理・活用はチームの中で issue としてあがっており OU の整理が進んでいく予定です]。
 ![OUの構成イメージ](https://storage.googleapis.com/zenn-user-upload/518a9ab712b0-20240808.png)
 
@@ -99,14 +99,14 @@ AWS アカウントは目的ごとに作成しています。
 AWS Organizations を使うことで請求の一括化や、API を使ったアカウントの作成も行っています。 AWS Organizations の利用方法については、AWS の公式ドキュメントをご参照ください。
 https://aws.amazon.com/jp/organizations/getting-started/
 
-IAM Identity Center では IAM Identity Center の管理を AWS Organizations 配下のメンバーアカウントに委任可能です^[[IAM Identity Center 管理を委任して管理](https://docs.aws.amazon.com/ja_jp/singlesignon/latest/userguide/delegated-admin.html)]。今回の構成では admin OU 配下に委任先アカウントを作成し、強い権限を持つ AWS Organizations アカウントへのセキュリティ上の懸念を軽減しています。
+IAM Identity Center では IAM Identity Center の管理を AWS Organizations 配下のメンバーアカウントに委任可能です^[[IAM Identity Center 管理を委任して管理](https://docs.aws.amazon.com/ja_jp/singlesignon/latest/userguide/delegated-admin.html)]。今回の構成では admin OU 配下に委任先アカウントを作成することで、強い権限を持つ AWS Organizations アカウントへのセキュリティ上の懸念を軽減しています。
 
 ## アカウント同期
 
 ### ユーザアカウントの管理
 ![Entra ID と IAM Identity Center のユーザアカウント同期](https://storage.googleapis.com/zenn-user-upload/39a1274b4433-20240808.png)
 
-SSO ログインするためのユーザアカウントは Entra ID から IAM Identity Center へ 40 分毎に同期されています。全ての社内ユーザアカウントが同期されており、社内ユーザ全員が SSO のしくみを利用可能になっています。
+SSO ログインするためのユーザアカウントは Entra ID から IAM Identity Center へ 40 分毎に同期されています。すべての社内ユーザアカウントが同期されており、社内ユーザ全員が SSO のしくみを利用できます。
 
 ### ログイン可能な AWS アカウントと許可セット情報管理
 
@@ -124,7 +124,7 @@ IAM Identity Center のマスターデータ(`許可セット` / `ユーザア�
 
 ## AWS アカウントへのログイン方法
 
-### AWS マネジメントコンソソールへのログイン
+### AWS マネジメントコンソールへのログイン
 ![アクセスポータル](https://storage.googleapis.com/zenn-user-upload/bb9e26cde30f-20240808.png)
 ユーザは IAM Identity Center のアクセスポータル通じて、ログインする AWS アカウント/利用する許可セットを選択してログイン可能です。
 https://docs.aws.amazon.com/ja_jp/singlesignon/latest/userguide/using-the-portal.html
@@ -140,14 +140,14 @@ https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/cli-configure-sso.html
 
 ## kintone アプリレコード登録から AWS 環境への同期をユーザがトリガできる
 
-IAM Identity Center のマスターデータ(`許可セット` / `ユーザアカウントとAWS アカウントと許可セット割当`)の同期は 10 分毎に実行していますが、「レコード登録/修正したから早く AWS 環境に反映させて動作確認したい」ということがあります。管理者へ依頼することなく、ユーザ自身で GitHub Actions Workflow を実行リポジトリの特定 issue で `/sync` とコメントすることで即時同期実行を可能にしています。
+IAM Identity Center のマスターデータ(`許可セット` / `ユーザアカウントとAWS アカウントと許可セット割当`)の同期は 10 分毎に実行していますが、「レコード登録/修正したから早く AWS 環境に反映させて動作確認したい」ということがあります。管理者へ依頼することなく、ユーザ自身で GitHub Actions Workflow を実行するリポジトリの特定 issue で `/sync` とコメントすることで、即時同期を実行できます。
 
 `/sync` とコメントすると bot が👀をつけて同期が始まります。
 ![プログラムから自動コメント](https://storage.googleapis.com/zenn-user-upload/f07b8a7be986-20240808.png)
 
 ## 許可セットの登録間違いは kintone アプリのレコードにコメント通知しユーザに直接通知
 
-マネージドポリシーやカスタムポリシーを利用して許可セットを登録可能です。マネージドポリシー名の間違いや、JSON で登録するカスタムポリシー設定では、記述間違いが起こりがちです。その際のエラーを kintone アプリレコードコメントに直接書き込み(通知)することで、「ユーザが早く間違いに気がつける」「管理者がユーザへ個別に連絡しなくてもよく負担がない」を実現しています。
+マネージドポリシーやカスタムポリシーを利用して許可セットを登録可能です。マネージドポリシー名の間違いや、JSON で登録するカスタムポリシー設定では、記述ミスが起こりがちです。その際のエラーを kintone アプリレコードコメントに直接書き込む(通知する)ことで、「ユーザが早くミスに気付ける」「管理者がユーザに個別に連絡しなくても済み、負担軽減につながる」を実現しています。
 
 ![](https://storage.googleapis.com/zenn-user-upload/1e79f85cae47-20240808.png)
 
@@ -160,19 +160,19 @@ https://aws.amazon.com/jp/about-aws/whats-new/2024/04/aws-iam-identity-center-sh
 
 - 利用する AWS アカウント
 - 利用する許可セット
-- アクセスする AWS サービス URL
+- アクセス先の AWS サービス URL
 
 を指定してショートカットを利用可能なのですが、この機能を利用してアラート通知を Slack へ飛ばす際に `特定 AWS アカウント の CloudWatch Logs` へ直接アクセスできるリンクを埋め込んだり、運用ドキュメントに `特定 AWS アカウントの ECS 画面` へのリンクを埋め込んだりできます。
 
-複数 AWS アカウントを管理・運用しているチームでは、特定(目的) AWS アカウントへログイン → 目的のサービスへ移動を繰り返していたと思いますが、ショートカットを利用することでアカウント切り替えの手間がなくなりとても便利になりました。
+複数 AWS アカウントを管理・運用しているチームでは、特定(目的)の AWS アカウントへログインし、目的のサービスへ移動するという操作を繰り返していたと思いますが、ショートカットを利用することでアカウント切り替えの手間がなくなり、非常に便利になりました。
 
 :::message
-弊社主催の Meetup で、「IAM によるスイッチロールから IAM Identity Center によるアカウント**切り替え**に移行したメリットはありますか？」と質問され、回答に困っていたのですが、いまなら **これです！これです！** と回答できます。移行に関する記載はしない！としてるのに記載しているのであとがきです。
+弊社主催の Meetup で、「IAM によるスイッチロールから IAM Identity Center によるアカウント**切り替え**に移行したメリットはありますか？」と質問され、回答に困っていたのですが、今では自信を持って **これです！これです！** と回答できます。移行に関する記載はしないと決めていたのですが、この機能は非常に便利なので、あとがきで触れておきます。
 :::
 
 ## Microsoft Entra ID と IAM Identity Center の連携設定
 
-クラスメソッドさんの最高の記事を参考にしながら Entra ID と IAM Identity Center の連携設定が可能です(個人用 Entra ID + IAM Identity Center 連携時にもお世話になりました)。そのため本記事では連携方法に関する情報は記載しませんでした。クラスメソッドさん有益な記事を公開いただきありがとうございます。
+クラスメソッドさんの素晴らしい記事を参考にすれば、Entra ID と IAM Identity Center の連携設定が可能です(個人用 Entra ID + IAM Identity Center 連携時にも参考にさせていただきました)。そのため、本記事では連携方法に関する情報は割愛しました。クラスメソッドさん、有益な記事を公開いただきありがとうございます。
 https://dev.classmethod.jp/articles/federate-azure-ad-and-aws-iam-identity-center/
 
 # お知らせ
@@ -180,4 +180,5 @@ https://dev.classmethod.jp/articles/federate-azure-ad-and-aws-iam-identity-cente
 ## assam の GitHub リポジトリをアーカイブしました
 
 https://github.com/cybozu/assam
-IAM Identity Center の採用にともない、SSO の CLI 利用が `aws sso login` で可能になったため、assam はアーカイブしメンテナンスを終了しました。
+IAM Identity Center を採用したことで、SSO の CLI 利用が `aws sso login` で可能になったため、assam はアーカイブし、メンテナンスを終了しました。
+
