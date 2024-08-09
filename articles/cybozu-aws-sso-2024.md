@@ -4,7 +4,7 @@ emoji: "⚙"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["aws", "entraid", "sso"]
 published: true
-published_at: 2024-08-14 09:00 # JST
+published_at: 2024-08-14 00:00 # JST
 publication_name: "cybozu_ept"
 ---
 
@@ -24,7 +24,7 @@ https://blog.cybozu.io/entry/2019/10/18/080000
 
 # 目的
 
-シングルアカウントで運用していると、人やチームが増えて規模が大きくなってきたときに権限管理が中央集権的になり、管理者への負担が増大してしまいます。また、新規ユーザーの登録だけでなく、退職時の削除漏れにも注意が必要です。利用者側に管理するパスワードが負担を負わせたくありません。
+シングルアカウントで運用していると、人やチームが増えて規模が大きくなってきたときに権限管理が中央集権的になり、管理者への負担が増大してしまいます。また、新規ユーザーの登録だけでなく、退職時の削除漏れにも注意が必要です。ユーザに管理するパスワードが増える負担を負わせたくありません。
 
 生産性向上チームではマルチアカウント構成によるシングルサインオン(以下 SSO)とチームに委譲できる権限管理のしくみを作ることでこれらの問題を解決し、社内で AWS を活用しやすい基盤を継続運用します。
 
@@ -53,13 +53,12 @@ https://docs.aws.amazon.com/ja_jp/singlesignon/latest/userguide/permissionsetsco
 https://dev.classmethod.jp/articles/multi-account-tips-ps-for-management-account/
 
 # 実現されていること
-
-**kintone + AWS SSO(IAM Identity Center) で AWS マルチアカウント管理・利用を最高にするしくみ！**です。
+**kintone + AWS SSO(IAM Identity Center)で AWS マルチアカウント管理・利用を最高にするしくみ**です。
 
 - 利用チーム/ユーザは kintone アプリにレコード登録**だけ**で、社内ユーザアカウントを利用し SSO で AWS アカウントを利用可能
 - 管理者の作業は基本的に不要です（必要な情報の同期・設定は自動で行われます）、エラーは Slack に通知されるため、通知を受けてユーザサポートもしくは解析作業
 
-ユーザが必要な AWS アカウントで必要な権限を利用して開発がおこなえる！権限を得るために承認依頼待ちならない！を実現しています。
+利用チーム/ユーザが必要な AWS アカウントで必要な権限を利用して開発がおこなえる！権限を得るために承認依頼待ちならない！を実現しています。
 
 出勤登録する程度のユーザ負担で AWS アカウントを必要な権限で利用可能ですね！（冗談ですが）
 
@@ -74,8 +73,11 @@ kintone アプリに権限(許可セット)を登録することで、ユーザ�
 ### ユーザアカウント x AWS アカウント x 許可セット割当登録
 
 ![ユーザアカウントとAWS アカウントと許可セットの紐づけ画面](https://storage.googleapis.com/zenn-user-upload/ad57b93812b0-20240808.png)
-kintone アプリに `許可セット` / `ユーザアカウント x AWS アカウント x 許可セット割当` をレコード登録することで SSO のしくみを利用可能になっています。ユーザは kintone アプリにレコード登録するだけです！(大事なことなので 2 回言いました)
+kintone アプリに `許可セット` / `ユーザアカウント x AWS アカウント x 許可セット割当` をレコード登録することで SSO のしくみを利用可能になっています。利用チーム/ユーザは kintone アプリにレコード登録するだけです！(大事なことなので 2 回言いました)
 
+:::message
+ユーザアカウント x AWS アカウント x 許可セット割当登録レコードは、利用チームの責任者^[責任者 = マネージャではなく AWS アカウントの管理に責任を持ってる人です][編集可能なユーザ]が管理しています。利用ユーザが不必要な AWS アカウントの操作権限を得ることができないしくみになっています。
+:::
 
 # SSO を使った AWS アカウントの構成概要
 
@@ -112,15 +114,14 @@ SSO ログインするためのユーザアカウントは Entra ID から IAM I
 
 ![kintone とAWS アカウント/許可セット同期](https://storage.googleapis.com/zenn-user-upload/fdde980e115f-20240808.png)
 
-IAM Identity Center のマスターデータ(`許可セット` / `ユーザアカウント x AWS アカウント x 許可セット割当`)は kintone に置き、GitHub Actions Workflow を利用して自動同期することで簡単にメンテナンスできるようにしています。
+IAM Identity Center のマスターデータ(`許可セット` / `AWS アカウント x ユーザアカウント x 許可セット割当`)は kintone に置き、GitHub Actions Workflow を利用して自動同期することで簡単にメンテナンスできるようにしています。
 
-- GitHub Actions workflow で 10 分毎にスケジュール実行し、ユーザアカウント x AWS アカウント x 許可セット割当をしています
+- GitHub Actions workflow で 10 分毎にスケジュール実行し、AWS アカウント x ユーザアカウント x 許可セット割当をしています
 - GitHub Actions workflow から AWS を操作するために [OIDC を利用して AWS 認証](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services)します
 - 割当プログラムは Go 言語で実装し(チームでは TypeScript or Go でツール実装することが多い)、2 つのプログラムが実行されています
   - 許可セットの割当
-  - ユーザアカウント x AWS アカウント x 許可セット割当
-- `管理アカウントへ割り当てている許可セット` が委任先アカウントで更新できなくなるため、IAM Identity Center 管理アカウントへのユーザアカウント x AWS アカウント x 許可セット割当は別枠で実施しています
-  https://dev.classmethod.jp/articles/multi-account-tips-ps-for-management-account/
+  - AWS アカウント x ユーザアカウント x 許可セット割当
+- `ルートアカウントへ割り当てている許可セット` が委任先アカウントで更新できなくなるため、IAM Identity Center ルートアカウントへの AWS アカウント x ユーザアカウント x 許可セット割当は別枠で実施しています(後述で補足)
 
 ## AWS アカウントへのログイン方法
 
@@ -140,16 +141,27 @@ https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/cli-configure-sso.html
 
 ## kintone アプリレコード登録から AWS 環境への同期をユーザがトリガできる
 
-IAM Identity Center のマスターデータ(`許可セット` / `ユーザアカウントとAWS アカウントと許可セット割当`)の同期は 10 分毎に実行していますが、「レコード登録/修正したから早く AWS 環境に反映させて動作確認したい」ということがあります。管理者へ依頼することなく、ユーザ自身で GitHub Actions Workflow を実行するリポジトリの特定 issue で `/sync` とコメントすることで、即時同期を実行できます。
+IAM Identity Center のマスターデータ(`許可セット` / `AWS アカウント x ユーザアカウント x 許可セット割当`)の同期は 10 分毎に実行していますが、「レコード登録/修正したから早く AWS 環境に反映させて動作確認したい」ということがあります。管理者へ依頼することなく、ユーザ自身で GitHub Actions Workflow を実行するリポジトリの特定 issue で `/sync` とコメントすることで、即時同期を実行できます。
 
 `/sync` とコメントすると bot が👀をつけて同期が始まります。
 ![プログラムから自動コメント](https://storage.googleapis.com/zenn-user-upload/f07b8a7be986-20240808.png)
 
 ## 許可セットの登録間違いは kintone アプリのレコードにコメント通知しユーザに直接通知
 
-マネージドポリシーやカスタムポリシーを利用して許可セットを登録可能です。マネージドポリシー名の間違いや、JSON で登録するカスタムポリシー設定では、記述ミスが起こりがちです。その際のエラーを kintone アプリレコードコメントに直接書き込む(通知する)ことで、「ユーザが早くミスに気付ける」「管理者がユーザに個別に連絡しなくても済み、負担軽減につながる」を実現しています。
+マネージドポリシーやカスタムポリシーを利用して許可セットを登録可能です。マネージドポリシー名の間違いや、JSON で登録するカスタムポリシー設定では、記述ミスが起こりがちです。その際のエラーを kintone アプリレコードコメントに直接書き込む(通知する)ことで、「利用チーム/ユーザが早くミスに気付ける」「管理者が利用チーム/ユーザに個別に連絡しなくても済み、負担軽減につながる」を実現しています。
 
 ![](https://storage.googleapis.com/zenn-user-upload/1e79f85cae47-20240808.png)
+
+## IAM Identity Center ルートアカウントへの AWS アカウント x ユーザアカウント x 許可セット割当は別枠で実施
+
+![IAM Identity Center の管理アカウントは Terrafor で管理している](https://storage.googleapis.com/zenn-user-upload/709d468ada02-20240809.png)
+ルートアカウントの許可セット x アカウント x ユーザ割当管理は Terraform を利用しています。
+
+理由は、AWS Organizations 配下のメンバーアカウント(委任アカウント含む)へは許可セット割当時は、`AWSServiceRoleForSSO` を通して割当操作が行われるが、マスターアカウントの場合は、操作するユーザ(今回だと OIDC のロール)権限が利用されるため、追加ポリシーが必要でした。このポリシーが強い権限(iam::xxx)のため、GitHub Actions へ強い権限を渡さない方針とし、Terraform で別途管理としました。
+
+![iam::xxx の強い権限が必要](https://storage.googleapis.com/zenn-user-upload/cc2e859a4c9a-20240809.png)
+
+https://dev.classmethod.jp/articles/multi-account-tips-ps-for-management-account/
 
 # あとがき
 
