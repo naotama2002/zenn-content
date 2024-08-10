@@ -159,8 +159,6 @@ IAM Identity Center のマスターデータ(`許可セット` / `AWS アカウ�
 
 理由は、AWS Organizations 配下のメンバーアカウント(委任アカウント含む)へは許可セット割当時は、`AWSServiceRoleForSSO` を通して割当操作が行われるが、マスターアカウントの場合は、操作するユーザ(今回だと OIDC のロール)権限が利用されるため、追加ポリシーが必要でした。このポリシーが強い権限(iam::xxx)のため、GitHub Actions へ強い権限を渡さない方針とし、Terraform で別途管理としました。
 
-![iam::xxx の強い権限が必要](https://storage.googleapis.com/zenn-user-upload/cc2e859a4c9a-20240809.png)
-
 https://dev.classmethod.jp/articles/multi-account-tips-ps-for-management-account/
 
 # あとがき
