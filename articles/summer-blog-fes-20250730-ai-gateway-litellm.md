@@ -115,6 +115,13 @@ kintone アプリの情報から LiteLLM の [Key Management API](https://litell
 
 # あとがき
 
-AI Gateway 基盤構築は [defaultcf](https://zenn.dev/defaultcf) と一緒に実施しました。お互い一瞬業務ソンから抜けるタイミングもありましたが、「開発者自身が `API Key` を発行できる AI Gateway を構築する」というゴールを達成できました。
+AI Gateway 基盤構築は [defaultcf](https://zenn.dev/defaultcf) と一緒に実施しました。お互いに一瞬業務ソンから抜けるタイミングもありましたが、「開発者自身が `API Key` を発行できる AI Gateway を構築する」というゴールを達成できました。
 
-業務ソンはいいぞ！
+今後の展開としては次のようなものを想定しています。
+- LLM プロバイダー / モデルを随時新しいものに入れ替える
+- `API Key` ごとのトークン利用量を kintone アプリ上で可視化する
+- `API Key` ごとでトークン利用量の制限する
+- ガードレールを導入する
+- Prompt 管理、LLM as a Judge 等の開発支援機能要望に応じて LiteLLM に Langfuse を接続する
+
+結論、業務ソンはいいぞ！
